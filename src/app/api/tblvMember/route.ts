@@ -86,14 +86,15 @@ export async function DELETE(
     try{
 
         const formData  = await (request.formData());
-        const UserName  = formData.get('UserName');
-        const Password  = formData.get('Password');
-     // console.log(customerID+" "+model.modelID+" "+model.price)
+        const UserName1  = formData.get('UserName');
+        const Password1  = formData.get('Password');
+     
       const t=await prisma.tblvMember.create({
             data: {
-            UserName:UserName?.toString(),
-              groupname:groupname.toString(),
-              name:name.toString(),
+            UserName:UserName1?.toString(),
+            Password:Password1?.toString(),
+             // groupname:groupname.toString(),
+              //name:name.toString(),
              
               
              
