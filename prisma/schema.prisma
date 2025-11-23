@@ -1,0 +1,764 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model tblAccount {
+  AccountID                                                  Int                      @id(map: "PK_tblAccount")
+  AccPeriodID                                                Int?
+  OwnerID                                                    Int
+  BankID                                                     Int
+  Accountbalance                                             Decimal?                 @db.Decimal(18, 2)
+  AccountNumber                                              String                   @db.NVarChar(50)
+  CardNumber                                                 String?                  @db.NVarChar(50)
+  CreateDate                                                 String?                  @db.NVarChar(50)
+  CreatMemberID                                              Int?
+  IsActive                                                   Int?
+  Description                                                String?                  @db.NVarChar(Max)
+  Temp1                                                      String?                  @db.NVarChar(50)
+  Temp2                                                      String?                  @db.NVarChar(50)
+  Temp3                                                      String?                  @db.NVarChar(50)
+  Temp4                                                      String?                  @db.NVarChar(50)
+  Temp5                                                      String?                  @db.NVarChar(50)
+  tblvMember_tblAccount_CreatMemberIDTotblvMember            tblvMember?              @relation("tblAccount_CreatMemberIDTotblvMember", fields: [CreatMemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblAccount_tblvMember")
+  tblvMember_tblAccount_OwnerIDTotblvMember                  tblvMember               @relation("tblAccount_OwnerIDTotblvMember", fields: [OwnerID], references: [MemberID], onUpdate: NoAction, map: "FK_tblAccount_tblvMember_OwnerID")
+  tblAccPeriodtblAccount                                     tblAccPeriodtblAccount[]
+  tblCheck                                                   tblCheck[]
+  tblPaymentDetail_tblPaymentDetail_AccountIDINTotblAccount  tblPaymentDetail[]       @relation("tblPaymentDetail_AccountIDINTotblAccount")
+  tblPaymentDetail_tblPaymentDetail_AccountIDOutTotblAccount tblPaymentDetail[]       @relation("tblPaymentDetail_AccountIDOutTotblAccount")
+}
+
+model tblAccPeriod {
+  AccPeriodID            Int                      @id(map: "PK_tblAccPeriod")
+  PeriodTitle            String                   @db.NVarChar(50)
+  PeriodYear             String?                  @db.NVarChar(50)
+  PeriodNumber           Int?
+  DateStart              String?                  @db.NVarChar(50)
+  DateEnd                String?                  @db.NVarChar(50)
+  CreateDate             String?                  @db.NVarChar(50)
+  CreatMemberID          Int?
+  IsActive               Int?
+  Description            String?                  @db.NVarChar(Max)
+  Temp1                  String?                  @db.NVarChar(50)
+  Temp2                  String?                  @db.NVarChar(50)
+  Temp3                  String?                  @db.NVarChar(50)
+  Temp4                  String?                  @db.NVarChar(50)
+  tblAccPeriodtblAccount tblAccPeriodtblAccount[]
+  tblAccPeriodtblStock   tblAccPeriodtblStock[]
+  tblCheck               tblCheck[]
+  tblHavalehResidMaster  tblHavalehResidMaster[]
+  tblInstallment         tblInstallment[]
+  tblPaymentMaster       tblPaymentMaster[]
+}
+
+model tblAccPeriodtblAccount {
+  AccPeriodAccountID Int          @id(map: "PK_tblAccPeriodtblAccount") @default(autoincrement())
+  AccPeriodID        Int
+  AccountID          Int
+  IsActive           Boolean?
+  CreateDate         String?      @db.NVarChar(50)
+  CreatMemberID      Int?
+  Description        String?      @db.NVarChar(Max)
+  Temp1              String?      @db.NVarChar(50)
+  Temp2              String?      @db.NVarChar(50)
+  Temp3              String?      @db.NVarChar(50)
+  Temp4              String?      @db.NVarChar(50)
+  tblAccount         tblAccount   @relation(fields: [AccountID], references: [AccountID], onUpdate: NoAction, map: "FK_tblAccPeriodtblAccount_tblAccount")
+  tblAccPeriod       tblAccPeriod @relation(fields: [AccPeriodID], references: [AccPeriodID], onUpdate: NoAction, map: "FK_tblAccPeriodtblAccount_tblAccPeriod")
+}
+
+model tblAccPeriodtblStock {
+  AccPeriodStockID Int          @id(map: "PK_tblAccPeriodtblStock") @default(autoincrement())
+  AccPeriodID      Int
+  StockID          Int
+  IsActive         Boolean?
+  CreateDate       String?      @db.NVarChar(50)
+  CreatMemberID    Int?
+  Description      String?      @db.NVarChar(Max)
+  Temp1            String?      @db.NVarChar(50)
+  Temp2            String?      @db.NVarChar(50)
+  Temp3            String?      @db.NVarChar(50)
+  Temp4            String?      @db.NVarChar(50)
+  tblAccPeriod     tblAccPeriod @relation(fields: [AccPeriodID], references: [AccPeriodID], onUpdate: NoAction, map: "FK_tblAccPeriodtblStock_tblAccPeriod")
+  tblStock         tblStock     @relation(fields: [StockID], references: [StockID], onUpdate: NoAction, map: "FK_tblAccPeriodtblStock_tblStock")
+}
+
+model tblAttachment {
+  AttachmentID  Int         @id(map: "PK_tblAttachment") @default(autoincrement())
+  ServiceID     Int?
+  Title         String?     @db.NVarChar(50)
+  Value         Bytes?
+  FileType      String?     @db.NVarChar(50)
+  FileName      String?     @db.NVarChar(50)
+  FileExtention String?     @db.NVarChar(50)
+  CreateDate    String?     @db.NVarChar(50)
+  CreatMemberID Int?
+  IsActive      Int?
+  Description   String?     @db.NVarChar(Max)
+  Temp1         String?     @db.NVarChar(50)
+  Temp2         String?     @db.NVarChar(50)
+  Temp3         String?     @db.NVarChar(50)
+  Temp4         String?     @db.NVarChar(50)
+  tblService    tblService? @relation(fields: [ServiceID], references: [ServiceID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblAttachment_tblService")
+}
+
+model tblCheck {
+  CheckID                                       Int                @id(map: "PK_tblCheck")
+  AccPeriodID                                   Int?
+  IsPersonCheck                                 Boolean
+  CheckStateID                                  Int
+  BankID                                        Int
+  AccountNumber                                 String             @db.NVarChar(50)
+  Amount                                        BigInt
+  OwnerID                                       Int?
+  RecipientID                                   Int?
+  AccountID                                     Int?
+  CardNumber                                    String?            @db.NVarChar(50)
+  CheckNumber                                   String             @db.NVarChar(50)
+  ExportationDate                               String?            @db.NVarChar(50)
+  MaturityDate                                  String?            @db.NVarChar(50)
+  PassDate                                      String?            @db.NVarChar(50)
+  CreateDate                                    String?            @db.NVarChar(50)
+  CreatMemberID                                 Int?
+  IsActive                                      Int?
+  Description                                   String?            @db.NVarChar(Max)
+  Temp1                                         String?            @db.NVarChar(50)
+  Temp2                                         String?            @db.NVarChar(50)
+  Temp3                                         String?            @db.NVarChar(50)
+  Temp4                                         String?            @db.NVarChar(50)
+  Temp5                                         String?            @db.NVarChar(50)
+  tblAccount                                    tblAccount?        @relation(fields: [AccountID], references: [AccountID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblCheck_tblAccount")
+  tblAccPeriod                                  tblAccPeriod?      @relation(fields: [AccPeriodID], references: [AccPeriodID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblCheck_tblAccPeriod")
+  tblCustomer_tblCheck_OwnerIDTotblCustomer     tblCustomer?       @relation("tblCheck_OwnerIDTotblCustomer", fields: [OwnerID], references: [CustomerID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblCheck_tblCustomer_Owner")
+  tblCustomer_tblCheck_RecipientIDTotblCustomer tblCustomer?       @relation("tblCheck_RecipientIDTotblCustomer", fields: [RecipientID], references: [CustomerID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblCheck_tblCustomer_Recipient")
+  tblEnum                                       tblEnum            @relation(fields: [CheckStateID], references: [EnumID], onUpdate: NoAction, map: "FK_tblCheck_tblEnum_CheckStateID")
+  tblPaymentDetail                              tblPaymentDetail[]
+}
+
+model tblCustomer {
+  CustomerID                                    Int                     @id(map: "PK_tblSick")
+  CustomerTypeID                                Int?
+  FName                                         String?                 @db.NVarChar(50)
+  LName                                         String?                 @db.NVarChar(100)
+  Fother                                        String?                 @db.NVarChar(50)
+  NationalCode                                  String?                 @db.NVarChar(50)
+  Address                                       String?                 @db.NVarChar(Max)
+  Phone                                         String?                 @db.NVarChar(50)
+  Mobile                                        String?                 @db.NVarChar(50)
+  Picture                                       Bytes?
+  Description                                   String?                 @db.NVarChar(Max)
+  Temp1                                         String?                 @db.NVarChar(50)
+  Temp2                                         String?                 @db.NVarChar(50)
+  Temp3                                         String?                 @db.NVarChar(50)
+  Temp4                                         String?                 @db.NVarChar(50)
+  tblCheck_tblCheck_OwnerIDTotblCustomer        tblCheck[]              @relation("tblCheck_OwnerIDTotblCustomer")
+  tblCheck_tblCheck_RecipientIDTotblCustomer    tblCheck[]              @relation("tblCheck_RecipientIDTotblCustomer")
+  tblEnum                                       tblEnum?                @relation(fields: [CustomerTypeID], references: [EnumID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblCustomer_tblEnum")
+  tblGauranty                                   tblGauranty[]
+  tblHavalehResidMaster                         tblHavalehResidMaster[]
+  tblInstallment                                tblInstallment[]
+  tblPaymentMaster                              tblPaymentMaster[]
+  tblService_tblService_OperatorIDTotblCustomer tblService[]            @relation("tblService_OperatorIDTotblCustomer")
+  tblService_tblService_CustomerIDTotblCustomer tblService[]            @relation("tblService_CustomerIDTotblCustomer")
+}
+
+model tblDDField {
+  DDFieldID    Int      @id(map: "PK_tblDDFieldID") @default(autoincrement())
+  TableName    String   @db.NVarChar(50)
+  FieldName    String   @db.NVarChar(50)
+  Title        String?  @db.NVarChar(50)
+  ISEnum       Boolean?
+  FieldType    String?  @db.NVarChar(50)
+  DisplayWidth String?  @db.NVarChar(50)
+  Description  String?  @db.NVarChar(Max)
+}
+
+model tblDDTable {
+  DDTableID   Int     @id(map: "PK_tblDDTable") @default(autoincrement())
+  TableName   String  @db.NVarChar(50)
+  Title       String? @db.NVarChar(50)
+  Description String? @db.NVarChar(50)
+  HaveEnum    Int?
+}
+
+model tblEnum {
+  EnumID                                                       Int                @id(map: "PK_tblEnum")
+  EnumGroupe                                                   Int?
+  GroupeNameEN                                                 String?            @db.NVarChar(50)
+  GroupeNameFA                                                 String?            @db.NVarChar(50)
+  FeildKey                                                     String?            @db.NVarChar(50)
+  NameEN                                                       String?            @db.NVarChar(100)
+  NameFA                                                       String?            @db.NVarChar(100)
+  Priority                                                     Int?
+  IsActive                                                     Int?
+  Description                                                  String?            @db.NVarChar(Max)
+  Temp1                                                        String?            @db.NVarChar(50)
+  Temp2                                                        String?            @db.NVarChar(50)
+  Temp3                                                        String?            @db.NVarChar(50)
+  Temp4                                                        String?            @db.NVarChar(50)
+  CreateDate                                                   String?            @db.NVarChar(50)
+  tblCheck                                                     tblCheck[]
+  tblCustomer                                                  tblCustomer[]
+  tblInstallment                                               tblInstallment[]
+  tblMaterialUnit                                              tblMaterialUnit[]
+  tblPaymentDetail                                             tblPaymentDetail[]
+  tblPaymentMaster_tblPaymentMaster_PaymentTypeIDTotblEnum     tblPaymentMaster[] @relation("tblPaymentMaster_PaymentTypeIDTotblEnum")
+  tblPaymentMaster_tblPaymentMaster_PaymentCostEnumIDTotblEnum tblPaymentMaster[] @relation("tblPaymentMaster_PaymentCostEnumIDTotblEnum")
+  tblService                                                   tblService[]
+}
+
+model tblGauranty {
+  GaurantyID         Int          @id(map: "PK_tblGauranty") @default(autoincrement())
+  MaterialID         Int?
+  CustomerID         Int?
+  DateStart          String?      @db.NVarChar(50)
+  DateEnd            String?      @db.NVarChar(50)
+  Postfix            String?      @db.NVarChar(50)
+  Suffix             String?      @db.NVarChar(50)
+  Serial             String?      @db.NVarChar(100)
+  GaurantyCardNumber String?      @db.NVarChar(100)
+  HasPowerProtection Int?
+  HasGasFilter       Int?
+  HasWaterFilter     Int?
+  CreateDate         String?      @db.NVarChar(50)
+  CreatMemberID      Int?
+  IsActive           Int?
+  Description        String?      @db.NVarChar(Max)
+  Temp1              String?      @db.NVarChar(50)
+  Temp2              String?      @db.NVarChar(50)
+  Temp3              String?      @db.NVarChar(50)
+  Temp4              String?      @db.NVarChar(50)
+  tblCustomer        tblCustomer? @relation(fields: [CustomerID], references: [CustomerID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblGauranty_tblCustomer1")
+  tblMaterial        tblMaterial? @relation(fields: [MaterialID], references: [MaterialID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblGauranty_tblMaterial")
+}
+
+model tblHavalehResidDetail {
+  HavalehResidDetailID  Int                   @id(map: "PK_tblHavalehResidDetail") @default(autoincrement())
+  HavalehResidMasterID  Int
+  MaterialID            Int
+  Quantity              Decimal?              @db.Decimal(18, 2)
+  PriceMainUnit         BigInt?
+  MaterialUnitID        Int?
+  Coef                  Decimal?              @db.Decimal(18, 3)
+  OffAmount             Int?
+  DetailState           Int?
+  CreateDate            String?               @db.NVarChar(50)
+  CreatMemberID         Int?
+  Description           String?               @db.NVarChar(Max)
+  Temp1                 String?               @db.NVarChar(50)
+  Temp2                 String?               @db.NVarChar(50)
+  Temp3                 String?               @db.NVarChar(50)
+  Temp4                 String?               @db.NVarChar(50)
+  tblHavalehResidMaster tblHavalehResidMaster @relation(fields: [HavalehResidMasterID], references: [HavalehResidMasterID], onUpdate: NoAction, map: "FK_tblHavalehResidDetail_tblHavalehResidMaster")
+  tblMaterial           tblMaterial           @relation(fields: [MaterialID], references: [MaterialID], onUpdate: NoAction, map: "FK_tblHavalehResidDetail_tblMaterial")
+  tblMaterialUnit       tblMaterialUnit?      @relation(fields: [MaterialUnitID], references: [MaterialUnitID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblHavalehResidDetail_tblMaterialUnit")
+}
+
+model tblHavalehResidMaster {
+  HavalehResidMasterID                                 Int                     @id(map: "PK_tblHavalehResidMaster")
+  FromStockID                                          Int?
+  ToStockID                                            Int?
+  ResidTypeID                                          Int
+  CustomerID                                           Int?
+  AccPeriodID                                          Int?
+  GaurantyID                                           Int?
+  DocumentDate                                         String                  @db.NVarChar(50)
+  CreateDate                                           String?                 @db.NVarChar(50)
+  CreatMemberID                                        Int?
+  DocumentNumber                                       Int
+  Description                                          String?                 @db.NVarChar(Max)
+  Temp1                                                String?                 @db.NVarChar(50)
+  Temp2                                                String?                 @db.NVarChar(50)
+  Temp3                                                String?                 @db.NVarChar(50)
+  Temp4                                                String?                 @db.NVarChar(50)
+  tblHavalehResidDetail                                tblHavalehResidDetail[]
+  tblAccPeriod                                         tblAccPeriod?           @relation(fields: [AccPeriodID], references: [AccPeriodID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblHavalehResidMaster_tblAccPeriod")
+  tblCustomer                                          tblCustomer?            @relation(fields: [CustomerID], references: [CustomerID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblHavalehResidMaster_tblCustomer")
+  tblResidType                                         tblResidType            @relation(fields: [ResidTypeID], references: [ResidTypeID], onUpdate: NoAction, map: "FK_tblHavalehResidMaster_tblResidType")
+  tblService                                           tblService?             @relation(fields: [GaurantyID], references: [ServiceID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblHavalehResidMaster_tblService")
+  tblStock_tblHavalehResidMaster_FromStockIDTotblStock tblStock?               @relation("tblHavalehResidMaster_FromStockIDTotblStock", fields: [FromStockID], references: [StockID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblHavalehResidMaster_tblStock_From")
+  tblStock_tblHavalehResidMaster_ToStockIDTotblStock   tblStock?               @relation("tblHavalehResidMaster_ToStockIDTotblStock", fields: [ToStockID], references: [StockID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblHavalehResidMaster_tblStock_TO")
+  tblPaymentMaster                                     tblPaymentMaster[]
+}
+
+model tblInstallment {
+  InstallmentID         Int                @id(map: "PK_tblInstallment")
+  AccPeriodID           Int
+  CustomerID            Int
+  InstallSatateID       Int
+  VamAmount             BigInt
+  DateFirstIntstallment String             @db.NVarChar(50)
+  InstallmentCount      Int
+  InstallMentAmount     BigInt
+  CreateDate            String?            @db.NVarChar(50)
+  CreatMemberID         Int?
+  IsActive              Int?
+  Description           String?            @db.NVarChar(Max)
+  Temp1                 String?            @db.NVarChar(50)
+  Temp2                 String?            @db.NVarChar(50)
+  Temp3                 String?            @db.NVarChar(50)
+  Temp4                 String?            @db.NVarChar(50)
+  tblAccPeriod          tblAccPeriod       @relation(fields: [AccPeriodID], references: [AccPeriodID], onUpdate: NoAction, map: "FK_tblInstallment_tblAccPeriod")
+  tblCustomer           tblCustomer        @relation(fields: [CustomerID], references: [CustomerID], onUpdate: NoAction, map: "FK_tblInstallment_tblCustomer")
+  tblEnum               tblEnum            @relation(fields: [InstallSatateID], references: [EnumID], onUpdate: NoAction, map: "FK_tblInstallment_tblEnum_InstallSatateID")
+  tblvMember            tblvMember?        @relation(fields: [CreatMemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblInstallment_tblvMember")
+  tblPaymentMaster      tblPaymentMaster[]
+}
+
+model tblMaterial {
+  MaterialID                                              Int                     @id(map: "PK_tblMaterial") @default(autoincrement())
+  ParentID                                                Int?
+  MaterialNameFA                                          String                  @db.NVarChar(50)
+  MaterialNameEN                                          String?                 @db.NVarChar(50)
+  MaterialCode                                            String?                 @db.NVarChar(50)
+  MaterialCodeBuster                                      String?                 @db.NVarChar(50)
+  SaleType                                                Int?
+  OtherItemTypeID                                         Int?
+  IsMaterial                                              Int?                    @default(1, map: "DF_tblMaterial_IsMaterial")
+  LastSalePrice                                           Int?
+  MainUnitPrice                                           Int?
+  BenefitPercentage                                       Decimal?                @db.Decimal(18, 2)
+  PointOfOrder                                            Decimal?                @db.Decimal(18, 2)
+  CatergoryName                                           String?                 @db.NVarChar(50)
+  Picture                                                 Bytes?
+  CreateDate                                              String?                 @db.NVarChar(50)
+  CreatMemberID                                           Int?
+  IsActive                                                Int?
+  Description                                             String?                 @db.NVarChar(Max)
+  Temp1                                                   String?                 @db.NVarChar(50)
+  Temp2                                                   String?                 @db.NVarChar(50)
+  Temp3                                                   String?                 @db.NVarChar(50)
+  Temp4                                                   String?                 @db.NVarChar(50)
+  tblGauranty                                             tblGauranty[]
+  tblHavalehResidDetail                                   tblHavalehResidDetail[]
+  tblMaterialPack_tblMaterialPack_MaterialIDTotblMaterial tblMaterialPack[]       @relation("tblMaterialPack_MaterialIDTotblMaterial")
+  tblMaterialPack_tblMaterialPack_PackIDTotblMaterial     tblMaterialPack[]       @relation("tblMaterialPack_PackIDTotblMaterial")
+  tblMaterialUnit                                         tblMaterialUnit[]
+  tblService                                              tblService[]
+}
+
+model tblMaterialPack {
+  MaterialPackID                                      Int             @id(map: "PK_tblMaterialPack") @default(autoincrement())
+  PackID                                              Int
+  MaterialID                                          Int
+  Amount                                              Decimal         @db.Decimal(18, 2)
+  MaterialUnitID                                      Int
+  CreateDate                                          String?         @db.NVarChar(50)
+  CreatMemberID                                       Int?
+  IsActive                                            Int?
+  Description                                         String?         @db.NVarChar(Max)
+  Temp1                                               String?         @db.NVarChar(50)
+  Temp2                                               String?         @db.NVarChar(50)
+  Temp3                                               String?         @db.NVarChar(50)
+  Temp4                                               String?         @db.NVarChar(50)
+  tblMaterial_tblMaterialPack_MaterialIDTotblMaterial tblMaterial     @relation("tblMaterialPack_MaterialIDTotblMaterial", fields: [MaterialID], references: [MaterialID], onUpdate: NoAction, map: "FK_tblMaterialPack_tblMaterial")
+  tblMaterial_tblMaterialPack_PackIDTotblMaterial     tblMaterial     @relation("tblMaterialPack_PackIDTotblMaterial", fields: [PackID], references: [MaterialID], onUpdate: NoAction, map: "FK_tblMaterialPack_tblMaterial_Pack")
+  tblMaterialUnit                                     tblMaterialUnit @relation(fields: [MaterialUnitID], references: [MaterialUnitID], onUpdate: NoAction, map: "FK_tblMaterialPack_tblMaterialUnit")
+}
+
+model tblMaterialUnit {
+  MaterialUnitID        Int                     @id(map: "PK_tblMaterialUnit")
+  UnitID                Int
+  MaterialID            Int
+  Coef                  Decimal                 @db.Decimal(18, 3)
+  Description           String?                 @db.NVarChar(Max)
+  Temp1Buster           String?                 @db.NVarChar(65)
+  Temp1                 String?                 @db.NVarChar(50)
+  Temp2                 String?                 @db.NVarChar(50)
+  Temp3                 String?                 @db.NVarChar(50)
+  Temp4                 String?                 @db.NVarChar(50)
+  tblHavalehResidDetail tblHavalehResidDetail[]
+  tblMaterialPack       tblMaterialPack[]
+  tblEnum               tblEnum                 @relation(fields: [UnitID], references: [EnumID], onUpdate: NoAction, map: "FK_tblMaterialUnit_tblEnum")
+  tblMaterial           tblMaterial             @relation(fields: [MaterialID], references: [MaterialID], onUpdate: NoAction, map: "FK_tblMaterialUnit_tblMaterial")
+}
+
+model tblMemberStock {
+  MemberStockID Int         @id(map: "PK_tblMemberStock") @default(autoincrement())
+  MemberID      Int?
+  StockID       Int?
+  CreateDate    String?     @db.NVarChar(50)
+  CreatMemberID Int?
+  IsActive      Int?
+  Description   String?     @db.NVarChar(Max)
+  Temp1         String?     @db.NVarChar(50)
+  Temp2         String?     @db.NVarChar(50)
+  Temp3         String?     @db.NVarChar(50)
+  Temp4         String?     @db.NVarChar(50)
+  tblStock      tblStock?   @relation(fields: [StockID], references: [StockID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblMemberStock_tblStock")
+  tblvMember    tblvMember? @relation(fields: [CreatMemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblMemberStock_tblvMember")
+}
+
+model tblPaymentDetail {
+  PaymentDetailID                                      Int              @id(map: "PK_tblPaymentDetail")
+  PaymentMasterID                                      Int
+  PaymentCaseID                                        Int
+  Amount                                               BigInt?
+  PayDate                                              String?          @db.NVarChar(50)
+  PayCode                                              String?          @db.NVarChar(50)
+  CheckID                                              Int?
+  AccountIDIN                                          Int?
+  AccountIDOut                                         Int?
+  CustomerCardNumber                                   String?          @db.NVarChar(50)
+  CreateDate                                           String?          @db.NVarChar(50)
+  CreatMemberID                                        Int?
+  IsActive                                             Int?
+  Description                                          String?          @db.NVarChar(Max)
+  Temp1                                                String?          @db.NVarChar(50)
+  Temp2                                                String?          @db.NVarChar(50)
+  Temp3                                                String?          @db.NVarChar(50)
+  Temp4                                                String?          @db.NVarChar(50)
+  Temp5                                                String?          @db.NVarChar(50)
+  tblAccount_tblPaymentDetail_AccountIDINTotblAccount  tblAccount?      @relation("tblPaymentDetail_AccountIDINTotblAccount", fields: [AccountIDIN], references: [AccountID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentDetail_tblAccount_IN")
+  tblAccount_tblPaymentDetail_AccountIDOutTotblAccount tblAccount?      @relation("tblPaymentDetail_AccountIDOutTotblAccount", fields: [AccountIDOut], references: [AccountID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentDetail_tblAccount_OUT")
+  tblCheck                                             tblCheck?        @relation(fields: [CheckID], references: [CheckID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentDetail_tblCheck")
+  tblEnum                                              tblEnum          @relation(fields: [PaymentCaseID], references: [EnumID], onUpdate: NoAction, map: "FK_tblPaymentDetail_tblEnum")
+  tblPaymentMaster                                     tblPaymentMaster @relation(fields: [PaymentMasterID], references: [PaymentMasterID], onUpdate: NoAction, map: "FK_tblPaymentDetail_tblPaymentMaster")
+  tblvMember                                           tblvMember?      @relation(fields: [CreatMemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentDetail_tblvMember")
+}
+
+model tblPaymentMaster {
+  PaymentMasterID                                     Int                    @id(map: "PK_tblPayment")
+  HavalehResidMasterID                                Int?
+  InstallmentID                                       Int?
+  PaymentCostEnumID                                   Int?
+  AccPeriodID                                         Int
+  CustomerID                                          Int?
+  PaymentTypeID                                       Int
+  DocumentNumber                                      Int
+  DocumentDate                                        String?                @db.NVarChar(50)
+  CreateDate                                          String?                @db.NVarChar(50)
+  CreatMemberID                                       Int?
+  Description                                         String?                @db.NVarChar(Max)
+  Temp1                                               String?                @db.NVarChar(50)
+  Temp2                                               String?                @db.NVarChar(50)
+  Temp3                                               String?                @db.NVarChar(50)
+  Temp4                                               String?                @db.NVarChar(50)
+  tblPaymentDetail                                    tblPaymentDetail[]
+  tblAccPeriod                                        tblAccPeriod           @relation(fields: [AccPeriodID], references: [AccPeriodID], onUpdate: NoAction, map: "FK_tblPayment_tblAccPeriod")
+  tblEnum_tblPaymentMaster_PaymentTypeIDTotblEnum     tblEnum                @relation("tblPaymentMaster_PaymentTypeIDTotblEnum", fields: [PaymentTypeID], references: [EnumID], onUpdate: NoAction, map: "FK_tblPayment_tblEnum_PaymentTypeID")
+  tblCustomer                                         tblCustomer?           @relation(fields: [CustomerID], references: [CustomerID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentMaster_tblCustomer")
+  tblEnum_tblPaymentMaster_PaymentCostEnumIDTotblEnum tblEnum?               @relation("tblPaymentMaster_PaymentCostEnumIDTotblEnum", fields: [PaymentCostEnumID], references: [EnumID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentMaster_tblEnum_PaymentCost")
+  tblHavalehResidMaster                               tblHavalehResidMaster? @relation(fields: [HavalehResidMasterID], references: [HavalehResidMasterID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentMaster_tblHavalehResidMaster")
+  tblInstallment                                      tblInstallment?        @relation(fields: [InstallmentID], references: [InstallmentID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPaymentMaster_tblInstallment")
+}
+
+model tblResidType {
+  ResidTypeID           Int                     @id(map: "PK_tblResidType") @default(autoincrement())
+  ResidTitle            String                  @db.NVarChar(50)
+  Effect                Int
+  Description           String?                 @db.NVarChar(Max)
+  Temp1                 String?                 @db.NVarChar(50)
+  Temp2                 String?                 @db.NVarChar(50)
+  Temp3                 String?                 @db.NVarChar(50)
+  Temp4                 String?                 @db.NVarChar(50)
+  tblHavalehResidMaster tblHavalehResidMaster[]
+}
+
+model tblrReport {
+  ReportID         Int               @id(map: "PK_tblReport") @default(autoincrement())
+  ParentReportID   Int?
+  ReportNameEN     String?           @db.NVarChar(200)
+  ReportNameFA     String?           @db.NVarChar(200)
+  Layout           String?           @db.NText
+  IsReport         Int?
+  CreateDate       String?           @db.NVarChar(50)
+  CreatMemberID    Int?
+  IsActive         Int?
+  Description      String?           @db.NVarChar(Max)
+  Temp1            String?           @db.NVarChar(500)
+  Temp2            String?           @db.NVarChar(500)
+  Temp3            String?           @db.NVarChar(500)
+  Temp4            String?           @db.NVarChar(500)
+  Temp5            String?           @db.NVarChar(500)
+  tblrReport       tblrReport?       @relation("tblrReportTotblrReport", fields: [ParentReportID], references: [ReportID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblReport_tblReport_Parent")
+  other_tblrReport tblrReport[]      @relation("tblrReportTotblrReport")
+  tblrReportPost   tblrReportPost[]
+  tblrReportQuery  tblrReportQuery[]
+}
+
+model tblrReportPost {
+  ReportPostID  Int         @id(map: "PK_tblReportPost") @default(autoincrement())
+  ReportID      Int?
+  PostID        Int?
+  CreateDate    String?     @db.NVarChar(50)
+  CreatMemberID Int?
+  IsActive      Int
+  Description   String?     @db.NText
+  Temp1         String?     @db.NVarChar(50)
+  Temp2         String?     @db.NVarChar(50)
+  tblvPost      tblvPost?   @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblReportPost_tblPost")
+  tblrReport    tblrReport? @relation(fields: [ReportID], references: [ReportID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblReportPost_tblReport")
+}
+
+model tblrReportQuery {
+  ReportQueryID         Int                     @id(map: "PK_tblrRepoertSP") @default(autoincrement())
+  ReportID              Int?
+  QueryString           String?                 @db.NVarChar(2000)
+  QueryType             Int?
+  FilterString          String?                 @db.NVarChar(2000)
+  CreateDate            String?                 @db.NVarChar(50)
+  CreatMemberID         Int?
+  IsActive              Int?
+  Description           String?                 @db.NText
+  Temp1                 String?                 @db.NVarChar(500)
+  Temp2                 String?                 @db.NVarChar(500)
+  Temp3                 String?                 @db.NVarChar(500)
+  Temp4                 String?                 @db.NVarChar(500)
+  Temp5                 String?                 @db.NVarChar(500)
+  tblrReport            tblrReport?             @relation(fields: [ReportID], references: [ReportID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblrRepoertQuery_tblrReport")
+  tblrReportQueryFilter tblrReportQueryFilter[]
+  tblrReportQueryValue  tblrReportQueryValue[]
+}
+
+model tblrReportQueryFilter {
+  ReportQueryFilterID Int             @id(map: "PK_tblReportQueryFilter") @default(autoincrement())
+  ReportQueryID       Int
+  MemberID            Int
+  FilterName          String          @db.NVarChar(200)
+  FilterValue         String?         @db.NVarChar(4000)
+  Description         String?         @db.NVarChar(Max)
+  Temp1               String?         @db.NVarChar(50)
+  Temp2               String?         @db.NVarChar(50)
+  Temp3               String?         @db.NVarChar(50)
+  Temp4               String?         @db.NVarChar(50)
+  tblrReportQuery     tblrReportQuery @relation(fields: [ReportQueryID], references: [ReportQueryID], onUpdate: NoAction, map: "FK_tblrReportQueryFilter_tblrReportQuery")
+  tblvMember          tblvMember      @relation(fields: [MemberID], references: [MemberID], onUpdate: NoAction, map: "FK_tblrReportQueryFilter_tblvMember")
+}
+
+model tblrReportQueryValue {
+  ReportQueryValueID Int              @id(map: "PK_tblDDStoredProcedureParametersValue") @default(autoincrement())
+  ReportQueryID      Int
+  ParameterID        Int
+  ParameterName      String?          @db.NVarChar(300)
+  DefaultValue       String?          @db.NVarChar(50)
+  Description        String?
+  ISENum             Boolean?
+  EnumGroupName      String?          @db.NVarChar(50)
+  EnumFeildKey       String?
+  Temp1              String?          @db.NVarChar(50)
+  Temp2              String?          @db.NVarChar(50)
+  Temp3              String?          @db.NVarChar(50)
+  tblrReportQuery    tblrReportQuery  @relation(fields: [ReportQueryID], references: [ReportQueryID], onUpdate: NoAction, map: "FK_tblrReportQueryValue_tblrReportQuery")
+  tblrSPParameters   tblrSPParameters @relation(fields: [ParameterID], references: [DDSPParameterID], onUpdate: NoAction, map: "FK_tblrReportQueryValue_tblrSPParameters")
+}
+
+model tblrSP {
+  DDStoredProcedureID Int     @id(map: "PK_tblDDStoredProcedureID") @default(autoincrement())
+  SPName              String  @db.NVarChar(100)
+  Title               String? @db.NVarChar(50)
+  Description         String? @db.NText
+}
+
+model tblrSPParameters {
+  DDSPParameterID      Int                    @id(map: "PK_tblDDStoredProcedureParameters") @default(autoincrement())
+  SPName               String                 @db.NVarChar(100)
+  ParameterName        String                 @db.NVarChar(50)
+  Title                String?                @db.NVarChar(50)
+  typeID               Int?
+  TypeName             String?                @db.NVarChar(50)
+  DefaultValue         String?                @db.NVarChar(50)
+  Description          String?                @db.NText
+  ISENum               Boolean?
+  EnumGroupName        String?                @db.NVarChar(50)
+  EnumFeildKey         String?                @db.NVarChar(50)
+  Temp1                String?                @db.NVarChar(50)
+  Temp2                String?                @db.NVarChar(50)
+  Temp3                String?                @db.NVarChar(50)
+  tblrReportQueryValue tblrReportQueryValue[]
+}
+
+model tblService {
+  ServiceID                                      Int                     @id(map: "PK_tblService") @default(autoincrement())
+  MaterialID                                     Int?
+  CustomerID                                     Int
+  GaurantyID                                     Int?
+  ServiceTypeID                                  Int?
+  OperatorID                                     Int?
+  ServiceNumber                                  String?                 @db.NVarChar(50)
+  ServiceDate                                    String?                 @db.NVarChar(50)
+  StartTime                                      String?                 @db.NVarChar(50)
+  EndTime                                        String?                 @db.NVarChar(50)
+  Customer_ErrorDescID                           Int?
+  Operator_ErrorDescID                           Int?
+  CreateTime                                     String?                 @db.NVarChar(50)
+  CreateDate                                     String?                 @db.NVarChar(50)
+  CreatMemberID                                  Int?
+  IsActive                                       Int?
+  Description                                    String?                 @db.NVarChar(Max)
+  Temp1                                          String?                 @db.NVarChar(50)
+  Temp2                                          String?                 @db.NVarChar(50)
+  Temp3                                          String?                 @db.NVarChar(50)
+  Temp4                                          String?                 @db.NVarChar(50)
+  Temp5                                          String?                 @db.NVarChar(50)
+  tblAttachment                                  tblAttachment[]
+  tblHavalehResidMaster                          tblHavalehResidMaster[]
+  tblCustomer_tblService_OperatorIDTotblCustomer tblCustomer?            @relation("tblService_OperatorIDTotblCustomer", fields: [OperatorID], references: [CustomerID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblService_tblCustomer")
+  tblCustomer_tblService_CustomerIDTotblCustomer tblCustomer             @relation("tblService_CustomerIDTotblCustomer", fields: [CustomerID], references: [CustomerID], onUpdate: NoAction, map: "FK_tblService_tblCustomer_Customer")
+  tblEnum                                        tblEnum?                @relation(fields: [ServiceTypeID], references: [EnumID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblService_tblEnum_ServiceType")
+  tblMaterial                                    tblMaterial?            @relation(fields: [MaterialID], references: [MaterialID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblService_tblMaterial")
+}
+
+model tblSetting {
+  SettingID Int     @id(map: "PK_tblSetting") @default(autoincrement())
+  FieldKey1 String? @db.NVarChar(150)
+  FieldKey2 String? @db.NVarChar(150)
+  FieldKey3 String? @db.NVarChar(150)
+  Temp1     String? @db.NVarChar(100)
+  Temp2     String? @db.NVarChar(100)
+  Temp3     String? @db.NVarChar(100)
+  Temp4     String? @db.NVarChar(100)
+  Temp5     String? @db.NVarChar(100)
+}
+
+model tblStock {
+  StockID                                                           Int                     @id(map: "PK_tblStock") @default(autoincrement())
+  AccPeriodID                                                       Int?
+  StockName                                                         String                  @db.NVarChar(50)
+  StockCode                                                         String?                 @db.NVarChar(50)
+  Address                                                           String?
+  Phone                                                             String?                 @db.NVarChar(50)
+  CreateDate                                                        String?                 @db.NVarChar(50)
+  CreatMemberID                                                     Int?
+  IsActive                                                          Int?
+  Description                                                       String?                 @db.NVarChar(Max)
+  Temp1                                                             String?                 @db.NVarChar(50)
+  Temp2                                                             String?                 @db.NVarChar(50)
+  Temp3                                                             String?                 @db.NVarChar(50)
+  Temp4                                                             String?                 @db.NVarChar(50)
+  tblAccPeriodtblStock                                              tblAccPeriodtblStock[]
+  tblHavalehResidMaster_tblHavalehResidMaster_FromStockIDTotblStock tblHavalehResidMaster[] @relation("tblHavalehResidMaster_FromStockIDTotblStock")
+  tblHavalehResidMaster_tblHavalehResidMaster_ToStockIDTotblStock   tblHavalehResidMaster[] @relation("tblHavalehResidMaster_ToStockIDTotblStock")
+  tblMemberStock                                                    tblMemberStock[]
+}
+
+model tblvForm {
+  FormID        Int            @id(map: "PK_tblForm") @default(autoincrement())
+  WorkStationID Int?
+  FormNameEN    String         @db.NVarChar(50)
+  FormNameFA    String         @db.NVarChar(50)
+  RequestString String?        @db.NVarChar(50)
+  CreateDate    DateTime?      @db.DateTime
+  IsActive      Int?
+  Description   String?        @db.NText
+  Temp1         String?        @db.NVarChar(50)
+  tblvFormPost  tblvFormPost[]
+}
+
+model tblvFormPost {
+  FormPostID        Int                 @id(map: "PK_tblFormPost") @default(autoincrement())
+  FormID            Int
+  PostID            Int
+  IsActive          Int?
+  CRUDc             Boolean?
+  CRUDr             Boolean?
+  CRUDu             Boolean?
+  CRUDd             Boolean?
+  CRUDConfirm       Boolean?
+  CRUDApprove       Boolean?
+  temp1             String?             @db.NVarChar(50)
+  temp2             String?             @db.NVarChar(50)
+  temp3             String?             @db.NVarChar(50)
+  temp4             String?             @db.NVarChar(50)
+  tblvForm          tblvForm            @relation(fields: [FormID], references: [FormID], onUpdate: NoAction, map: "FK_tblFormPost_tblForm")
+  tblvPost          tblvPost            @relation(fields: [PostID], references: [PostID], onUpdate: NoAction, map: "FK_tblFormPost_tblPost")
+  tblvFormPostField tblvFormPostField[]
+}
+
+model tblvFormPostField {
+  FormPostFieldID Int          @id(map: "PK_tblFormPostField") @default(autoincrement())
+  FormPostID      Int
+  FieldName       String       @db.NVarChar(300)
+  Visible         Boolean
+  Enable          Boolean
+  ReadOnly        Boolean
+  CreatorMemberID Int
+  CreateDate      String       @db.NVarChar(50)
+  Discription     String?      @db.NVarChar(Max)
+  ISActive        Int?
+  Temp1           String?      @db.NVarChar(50)
+  Temp2           String?      @db.NVarChar(50)
+  tblvFormPost    tblvFormPost @relation(fields: [FormPostID], references: [FormPostID], onUpdate: NoAction, map: "FK_tblFormPostField_tblFormPost")
+  tblvMember      tblvMember   @relation(fields: [CreatorMemberID], references: [MemberID], onUpdate: NoAction, map: "FK_tblFormPostField_tblMember")
+}
+
+model tblvMember {
+  MemberID                                        Int                     @id(map: "PK_tblMember") @default(autoincrement())
+  UserName                                        String?                 @db.NVarChar(50)
+  Password                                        String?                 @db.NVarChar(50)
+  PersonelID                                      String?                 @db.NVarChar(50)
+  FirstName                                       String                  @db.NVarChar(50)
+  LastName                                        String                  @db.NVarChar(50)
+  FotherName                                      String?                 @db.NVarChar(50)
+  Signatuer                                       Bytes?
+  CreateDate                                      String?                 @db.NVarChar(50)
+  IsActive                                        Int?
+  Description                                     String?                 @db.NText
+  Temp1                                           String?                 @db.NVarChar(50)
+  Temp2                                           String?                 @db.NVarChar(50)
+  Temp3                                           String?                 @db.NVarChar(50)
+  Temp4                                           String?                 @db.NVarChar(50)
+  Temp5                                           Bytes?
+  tblAccount_tblAccount_CreatMemberIDTotblvMember tblAccount[]            @relation("tblAccount_CreatMemberIDTotblvMember")
+  tblAccount_tblAccount_OwnerIDTotblvMember       tblAccount[]            @relation("tblAccount_OwnerIDTotblvMember")
+  tblInstallment                                  tblInstallment[]
+  tblMemberStock                                  tblMemberStock[]
+  tblPaymentDetail                                tblPaymentDetail[]
+  tblrReportQueryFilter                           tblrReportQueryFilter[]
+  tblvFormPostField                               tblvFormPostField[]
+  tblvMemberLog                                   tblvMemberLog[]
+  tblvMemberPost                                  tblvMemberPost[]
+}
+
+model tblvMemberLog {
+  MemberLogID Int        @id(map: "PK_tblMemberLog") @default(autoincrement())
+  MemberID    Int
+  LoginPostID Int
+  LoginDate   DateTime   @db.DateTime
+  LogOutDate  DateTime?  @db.DateTime
+  ISActive    Int?
+  Temp1       String?    @db.NVarChar(50)
+  Temp2       String?    @db.NVarChar(50)
+  Temp3       String?    @db.NVarChar(50)
+  Temp4       String?    @db.NVarChar(50)
+  Temp5       String?    @db.NVarChar(50)
+  tblvMember  tblvMember @relation(fields: [MemberID], references: [MemberID], onUpdate: NoAction, map: "FK_tblMemberLog_tblMember")
+  tblvPost    tblvPost   @relation(fields: [LoginPostID], references: [PostID], onUpdate: NoAction, map: "FK_tblMemberLog_tblPost")
+}
+
+model tblvMemberPost {
+  MemberPostID Int         @id(map: "PK_tblMemberPost") @default(autoincrement())
+  MemberID     Int?
+  PostID       Int?
+  ISActive     Int?
+  CreateDate   String?     @db.NVarChar(50)
+  tblvMember   tblvMember? @relation(fields: [MemberID], references: [MemberID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblMemberPost_tblMember")
+  tblvPost     tblvPost?   @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblMemberPost_tblPost")
+}
+
+model tblvPost {
+  PostID         Int              @id(map: "PK_tblPost") @default(autoincrement())
+  ParentPostID   Int?
+  PostCode       Int?
+  Name           String           @db.NVarChar(50)
+  NameFull       String?          @db.NVarChar(50)
+  CreateDate     String?          @db.NVarChar(50)
+  ISActive       Int?
+  Description    String?          @db.NText
+  Temp1          String?          @db.NVarChar(50)
+  Temp2          String?          @db.NVarChar(50)
+  Temp3          String?          @db.NVarChar(50)
+  Temp4          String?          @db.NVarChar(50)
+  Temp5          String?          @db.NVarChar(50)
+  tblrReportPost tblrReportPost[]
+  tblvFormPost   tblvFormPost[]
+  tblvMemberLog  tblvMemberLog[]
+  tblvMemberPost tblvMemberPost[]
+  tblvPost       tblvPost?        @relation("tblvPostTotblvPost", fields: [ParentPostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "FK_tblPost_tblPost_Parent")
+  other_tblvPost tblvPost[]       @relation("tblvPostTotblvPost")
+}
