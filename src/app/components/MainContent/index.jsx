@@ -1,9 +1,9 @@
 'use client'
 import React, { useState } from "react";
 import Image from "next/image";
-import WEB from "../../../../public/firspage.jpeg";
+import WEB from "../../../../public/firspage0.jpeg";
 
-export default function Index() {
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -36,7 +36,7 @@ export default function Index() {
     {/* هدر لاگین */}
     <div className="text-center mb-6">
       <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
-        <span className="text-white text-xl font-bold">🔒</span>
+       <span className="text-white text-xl font-bold">🔒</span>
       </div>
       <h2 className="text-xl font-bold text-gray-800">ورود به سیستم</h2>
       <p className="text-gray-600 mt-1 text-xs">لطفاً اطلاعات حساب خود را وارد کنید</p>
@@ -55,7 +55,7 @@ export default function Index() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-3 bg-white border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 text-right text-gray-800"
+            className="w-full px-4 py-3 bg-blue-50 border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 text-right text-gray-800"
             placeholder="نام کاربری خود را وارد کنید"
             required
             disabled={loading}
@@ -70,7 +70,7 @@ export default function Index() {
 
       {/* فیلد رمز عبور */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
+        <label className="block text-sm font-medium text-black-700 mb-2 text-right">
           رمز عبور
         </label>
         <div className="relative">
@@ -142,7 +142,7 @@ export default function Index() {
     {/* فوتر */}
     <div className="mt-4 pt-4 border-t border-gray-200">
       <p className="text-center text-xs text-gray-500">
-        سیستم مدیریت ورزشی - نسخه ۱.۰
+        سیستم مدیریت فروشگاهی - نسخه ۱.۰
       </p>
     </div>
   </div>
