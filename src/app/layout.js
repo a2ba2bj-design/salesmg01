@@ -3,9 +3,9 @@ import "./globals.css";
 import "../../public/Styles/style.css"
 
 export const metadata = {
-  title: "سایت ورزشی",
-  description: "باشگاه برتر با نازلترین قیمت",
-  keywords: "کیفیت, برتری, آنلاین",
+  title: "سایت فروشگاهی",
+  description: "فروشگاه موادغذایی برتر با نازلترین قیمت",
+  keywords: "کیفیت, برتری,همیشه در دسترس و آنلاین",
 };
 
 export default function RootLayout({ children }) {
