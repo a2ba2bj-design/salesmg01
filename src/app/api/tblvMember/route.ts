@@ -1,14 +1,11 @@
 import { NextRequest } from "next/server";
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
-
 const prisma = new PrismaClient();
 
 // تابع کمکی برای مدیریت خطا
-
 function handlePrismaError(error: unknown): { message: string; status: number } {
   console.error('Database error:', error);
-
   // استفاده از utility های Prisma
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
