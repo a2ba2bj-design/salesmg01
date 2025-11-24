@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-//import { PrismaClient } from '../../../generated/prisma/client';
+import { PrismaClient } from '../../../generated/prisma/client';
 import { makeSerializable } from "../../lib/util";
-import { PrismaClient } from '../../generated/prisma/client'
+//import { PrismaClient } from '../../generated/prisma/client'
 const prisma = new PrismaClient();
 import bcrypt from 'bcrypt';
 
@@ -84,7 +84,6 @@ export async function DELETE(
  
 
   //شروع تابع Insert
-  
 
 
 export async function POST(request: NextRequest) {
