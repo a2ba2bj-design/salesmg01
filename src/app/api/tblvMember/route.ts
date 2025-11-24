@@ -1,14 +1,36 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from '../../../generated/prisma/client';
-import { makeSerializable } from "../../lib/util";
-//import { PrismaClient } from '../../generated/prisma/client'
-const prisma = new PrismaClient();
+import { NextRequest } from "next/server";
+import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
+const prisma = new PrismaClient();
 
-// شروع تابع حذف کاربر
+// تابع کمکی برای مدیریت خطا
+function handlePrismaError(error: unknown): { message: string; status: number } {
+  console.error('Database error:', error);
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    switch (error.code) {
+      case 'P2002':
+        return { message: 'رکورد تکراری وجود دارد', status: 409 };
+      case 'P2025':
+        return { message: 'رکورد مورد نظر یافت نشد', status: 404 };
+      case 'P2003':
+        return { message: 'خطای ارجاع خارجی', status: 400 };
+      default:
+        return { message: `خطای پایگاه داده: ${error.code}`, status: 400 };
+    }
+  }
+
+  if (error instanceof Error) {
+    return { message: error.message, status: 500 };
+  }
+
+  return { message: 'خطای سرور داخلی', status: 500 };
+}
+
+// تابع حذف کاربر
 export async function DELETE(
-  request: NextRequest ,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -29,63 +51,44 @@ export async function DELETE(
     return new Response(null, { status: 204 });
 
   } catch (error) {
-    console.error('Error deleting member:', error);
-
-    // راه‌حل پیشنهادی: استفاده از type assertion
-    if ((error as any).code === 'P2025') {
-      return Response.json(
-        { error: 'عضو مورد نظر یافت نشد' },
-        { status: 404 }
-      );
-    }
-
-    // یا استفاده از بررسی ایمن
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
-      return Response.json(
-        { error: 'عضو مورد نظر یافت نشد' },
-        { status: 404 }
-      );
-    }
-
-    return Response.json(
-      { error: 'خطا در حذف عضو' },
-      { status: 500 }
-    );
+    const { message, status } = handlePrismaError(error);
+    return Response.json({ error: message }, { status });
   }
 }
-  //پایان تابع حذف کاربر
 
-//شروع تابع برای انتخاب یا selectکاربر
-
- export async function GET(request: NextRequest  )
-   
-  {
+// تابع دریافت کاربران
+export async function GET(request: NextRequest) {
+  try {
     const searchParams = request.nextUrl.searchParams;
     const UserName1 = searchParams.get('UserName');
-    let cats;
-    if (!UserName1){
- cats =makeSerializable( await prisma.tblvMember.findMany( {
-           
-          }))
+
+    let users;
+    if (!UserName1) {
+      
+      users = await prisma.tblvMember.findMany();
+    } else {
+      users = await prisma.tblvMember.findMany({
+        where: {
+          UserName: UserName1.toString()
+        },
+      });
     }
-    else{
-       cats =makeSerializable(await prisma.tblvMember.findMany( {
-            where:{
-                  UserName:UserName1.toString()
-          },
-          }))}
-       return new Response(JSON.stringify(cats)    
-    , {
+          
+    // اگر makeSerializable نیاز است، از آن استفاده کنید
+    // const serializedUsers = makeSerializable(users);
+
+    return new Response(JSON.stringify(users), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
+
+  } catch (error) {
+    const { message, status } = handlePrismaError(error);
+    return Response.json({ error: message }, { status });
   }
-  //پایان تابع انتخاب
- 
+}
 
-  //شروع تابع Insert
-
-
+// تابع ایجاد کاربر
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -94,101 +97,70 @@ export async function POST(request: NextRequest) {
 
     // اعتبارسنجی فیلدهای اجباری
     if (!UserName1 || !Password1) {
-      return new Response(
-        JSON.stringify({ 
-          error: "فیلدهای UserName و Password اجباری هستند" 
-        }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return Response.json(
+        { error: "فیلدهای UserName و Password اجباری هستند" },
+        { status: 400 }
       );
     }
 
+    const username = UserName1.toString().trim();
+    const password = Password1.toString();
+
     // اعتبارسنجی طول فیلدها
-    if (UserName1.toString().length < 3 || Password1.toString().length < 6) {
-      return new Response(
-        JSON.stringify({ 
-          error: "نام کاربری حداقل ۳ کاراکتر و رمز عبور حداقل ۶ کاراکتر باید باشد" 
-        }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
+    if (username.length < 3) {
+      return Response.json(
+        { error: "نام کاربری حداقل ۳ کاراکتر باید باشد" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 6) {
+      return Response.json(
+        { error: "رمز عبور حداقل ۶ کاراکتر باید باشد" },
+        { status: 400 }
       );
     }
 
     // بررسی وجود کاربر تکراری
     const existingUser = await prisma.tblvMember.findFirst({
-      where: {
-        UserName: UserName1.toString()
-      }
+      where: { UserName: username }
     });
 
     if (existingUser) {
-      return new Response(
-        JSON.stringify({ 
-          error: "نام کاربری قبلاً ثبت شده است" 
-        }), {
-          status: 409,
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return Response.json(
+        { error: "نام کاربری قبلاً ثبت شده است" },
+        { status: 409 }
       );
     }
 
-    // هش کردن رمز عبور (استفاده از bcrypt)
-    const hashedPassword = await bcrypt.hash(Password1.toString(), 12);
+    // هش کردن رمز عبور
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // ایجاد کاربر جدید
     const newMember = await prisma.tblvMember.create({
       data: {
-        UserName: UserName1.toString().trim(),
+        UserName: username,
         Password: hashedPassword,
-        // CreateDate: new Date(), // اگر فیلد در schema وجود دارد
-        // IsActive: true // اگر فیلد در schema وجود دارد
+        CreateDate: new Date(), // اگر در schema وجود دارد
+        IsActive: true // اگر در schema وجود دارد
       }
     });
 
-    // بازگرداندن پاسخ موفق بدون اطلاعات حساس
-    return new Response(
-      JSON.stringify({ 
+    // بازگرداندن پاسخ موفق
+    return Response.json(
+      {
         success: true,
         message: "کاربر با موفقیت ایجاد شد",
-        memberId: newMember.MemberID 
-      }), {
-        status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      }
+        memberId: newMember.MemberID
+      },
+      { status: 201 }
     );
 
   } catch (error) {
-    // لاگ کردن خطا برای debugging
-    console.error("Error creating member:", error);
-
-    // مدیریت ایمن خطا
-    let errorMessage = "خطای سرور داخلی";
-    let statusCode = 500;
-
-    // بررسی نوع خطا
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        errorMessage = "نام کاربری تکراری است";
-        statusCode = 409;
-      } else if (error.code === 'P2003') {
-        errorMessage = "خطای ارجاع خارجی";
-        statusCode = 400;
-      }
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-
-    // بازگرداندن خطای امن به کاربر
-    return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: errorMessage 
-      }), {
-        status: statusCode,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    const { message, status } = handlePrismaError(error);
+    return Response.json(
+      { success: false, error: message },
+      { status }
     );
   }
 }
