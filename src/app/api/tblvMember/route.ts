@@ -5,9 +5,11 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 // تابع کمکی برای مدیریت خطا
+
 function handlePrismaError(error: unknown): { message: string; status: number } {
   console.error('Database error:', error);
 
+  // استفاده از utility های Prisma
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
@@ -21,13 +23,28 @@ function handlePrismaError(error: unknown): { message: string; status: number } 
     }
   }
 
+  if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+    return { message: 'خطای ناشناخته پایگاه داده', status: 500 };
+  }
+
+  if (error instanceof Prisma.PrismaClientRustPanicError) {
+    return { message: 'خطای سیستمی پایگاه داده', status: 500 };
+  }
+
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    return { message: 'خطای اتصال به پایگاه داده', status: 500 };
+  }
+
+  if (error instanceof Prisma.PrismaClientValidationError) {
+    return { message: 'داده‌های ارسالی معتبر نیستند', status: 400 };
+  }
+
   if (error instanceof Error) {
     return { message: error.message, status: 500 };
   }
 
   return { message: 'خطای سرور داخلی', status: 500 };
 }
-
 // تابع حذف کاربر
 export async function DELETE(
   request: NextRequest,
