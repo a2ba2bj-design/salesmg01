@@ -43,24 +43,24 @@ function handlePrismaError(error: unknown): { message: string; status: number } 
   return { message: 'خطای سرور داخلی', status: 500 };
 }
 
-// تابع حذف MemberLog
+// تابع حذف MemberPost
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const memberLogId = parseInt(id);
+    const memberPostId = parseInt(id);
 
-    if (isNaN(memberLogId) || memberLogId <= 0) {
+    if (isNaN(memberPostId) || memberPostId <= 0) {
       return Response.json(
-        { error: 'شناسه MemberLog معتبر نیست' },
+        { error: 'شناسه MemberPost معتبر نیست' },
         { status: 400 }
       );
     }
 
-    await prisma.tblvMemberLog.delete({
-      where: { MemberLogID: memberLogId }
+    await prisma.tblvMemberPost.delete({
+      where: { MemberPostID: memberPostId }
     });
 
     return new Response(null, { status: 204 });
@@ -71,26 +71,24 @@ export async function DELETE(
   }
 }
 
-// تابع دریافت MemberLog ها
+// تابع دریافت MemberPost ها
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const memberId = searchParams.get('MemberID');
-    const loginPostId = searchParams.get('LoginPostID');
+    const postId = searchParams.get('PostID');
     const isActive = searchParams.get('ISActive');
-    const startDate = searchParams.get('StartDate');
-    const endDate = searchParams.get('EndDate');
 
-    let whereCondition: Prisma.tblvMemberLogWhereInput = {};
+    let whereCondition: Prisma.tblvMemberPostWhereInput = {};
 
     // فیلتر بر اساس MemberID
     if (memberId) {
       whereCondition.MemberID = parseInt(memberId);
     }
 
-    // فیلتر بر اساس LoginPostID
-    if (loginPostId) {
-      whereCondition.LoginPostID = parseInt(loginPostId);
+    // فیلتر بر اساس PostID
+    if (postId) {
+      whereCondition.PostID = parseInt(postId);
     }
 
     // فیلتر بر اساس وضعیت فعال بودن
@@ -98,22 +96,9 @@ export async function GET(request: NextRequest) {
       whereCondition.ISActive = parseInt(isActive);
     }
 
-    // فیلتر بر اساس بازه تاریخ
-    if (startDate || endDate) {
-      whereCondition.LoginDate = {};
-      
-      if (startDate) {
-        whereCondition.LoginDate.gte = new Date(startDate);
-      }
-      
-      if (endDate) {
-        whereCondition.LoginDate.lte = new Date(endDate);
-      }
-    }
-
-    const memberLogs = await prisma.tblvMemberLog.findMany({
+    const memberPosts = await prisma.tblvMemberPost.findMany({
       where: Object.keys(whereCondition).length > 0 ? whereCondition : undefined,
-      orderBy: { MemberLogID: 'desc' },
+      orderBy: { MemberPostID: 'desc' },
       include: {
         tblvMember: {
           select: {
@@ -131,7 +116,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return new Response(JSON.stringify(memberLogs), {
+    return new Response(JSON.stringify(memberPosts), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -142,27 +127,25 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// تابع ایجاد MemberLog جدید
+// تابع ایجاد MemberPost جدید
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     
     // دریافت فیلدهای اجباری
     const memberId = formData.get('MemberID');
-    const loginPostId = formData.get('LoginPostID');
-    const loginDate = formData.get('LoginDate');
+    const postId = formData.get('PostID');
 
     // اعتبارسنجی فیلدهای اجباری
-    if (!memberId || !loginPostId || !loginDate) {
+    if (!memberId || !postId) {
       return Response.json(
-        { error: "فیلدهای MemberID, LoginPostID و LoginDate اجباری هستند" },
+        { error: "فیلدهای MemberID و PostID اجباری هستند" },
         { status: 400 }
       );
     }
 
     const memberIdValue = parseInt(memberId.toString());
-    const loginPostIdValue = parseInt(loginPostId.toString());
-    const loginDateValue = new Date(loginDate.toString());
+    const postIdValue = parseInt(postId.toString());
 
     // اعتبارسنجی مقادیر عددی
     if (isNaN(memberIdValue) || memberIdValue <= 0) {
@@ -172,17 +155,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (isNaN(loginPostIdValue) || loginPostIdValue <= 0) {
+    if (isNaN(postIdValue) || postIdValue <= 0) {
       return Response.json(
-        { error: "LoginPostID باید یک عدد معتبر باشد" },
-        { status: 400 }
-      );
-    }
-
-    // اعتبارسنجی تاریخ
-    if (isNaN(loginDateValue.getTime())) {
-      return Response.json(
-        { error: "LoginDate باید یک تاریخ معتبر باشد" },
+        { error: "PostID باید یک عدد معتبر باشد" },
         { status: 400 }
       );
     }
@@ -200,7 +175,7 @@ export async function POST(request: NextRequest) {
     }
 
     const postExists = await prisma.tblvPost.findUnique({
-      where: { PostID: loginPostIdValue }
+      where: { PostID: postIdValue }
     });
 
     if (!postExists) {
@@ -210,43 +185,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // بررسی وجود رکورد تکراری
+    const existingMemberPost = await prisma.tblvMemberPost.findFirst({
+      where: { 
+        MemberID: memberIdValue,
+        PostID: postIdValue
+      }
+    });
+
+    if (existingMemberPost) {
+      return Response.json(
+        { error: "این ارتباط کاربر و پست قبلاً ثبت شده است" },
+        { status: 409 }
+      );
+    }
+
     // دریافت فیلدهای اختیاری
     const isActive = formData.get('ISActive');
-    const logOutDate = formData.get('LogOutDate');
-    const temp1 = formData.get('Temp1');
-    const temp2 = formData.get('Temp2');
-    const temp3 = formData.get('Temp3');
-    const temp4 = formData.get('Temp4');
-    const temp5 = formData.get('Temp5');
+    const createDate = formData.get('CreateDate');
 
     // آماده‌سازی داده‌ها برای ایجاد
-    const memberLogDataToCreate: any = {
+    const memberPostDataToCreate = {
       MemberID: memberIdValue,
-      LoginPostID: loginPostIdValue,
-      LoginDate: loginDateValue,
-      ISActive: isActive ? parseInt(isActive.toString()) : 1 // پیش‌فرض فعال
+      PostID: postIdValue,
+      ISActive: isActive ? parseInt(isActive.toString()) : 1, // پیش‌فرض فعال
+      CreateDate: createDate ? createDate.toString().trim() : new Date().toISOString().split('T')[0] // پیش‌فرض تاریخ امروز
     };
 
-    // اضافه کردن LogOutDate اگر وجود دارد
-    if (logOutDate) {
-      const logOutDateValue = new Date(logOutDate.toString());
-      if (!isNaN(logOutDateValue.getTime())) {
-        memberLogDataToCreate.LogOutDate = logOutDateValue;
-      }
-    }
-
-    // اضافه کردن فیلدهای temp اگر وجود دارند
-    const tempFields = ['Temp1', 'Temp2', 'Temp3', 'Temp4', 'Temp5'];
-    for (const tempField of tempFields) {
-      const value = formData.get(tempField);
-      if (value) {
-        memberLogDataToCreate[tempField] = value.toString().trim();
-      }
-    }
-
-    // ایجاد MemberLog جدید
-    const newMemberLog = await prisma.tblvMemberLog.create({
-      data: memberLogDataToCreate,
+    // ایجاد MemberPost جدید
+    const newMemberPost = await prisma.tblvMemberPost.create({
+      data: memberPostDataToCreate,
       include: {
         tblvMember: {
           select: {
@@ -267,9 +235,9 @@ export async function POST(request: NextRequest) {
     return Response.json(
       {
         success: true,
-        message: "لاگ کاربر با موفقیت ایجاد شد",
-        memberLogId: newMemberLog.MemberLogID,
-        data: newMemberLog
+        message: "ارتباط کاربر و پست با موفقیت ایجاد شد",
+        memberPostId: newMemberPost.MemberPostID,
+        data: newMemberPost
       },
       { status: 201 }
     );
@@ -283,114 +251,121 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// تابع بروزرسانی MemberLog (PUT)
+// تابع بروزرسانی MemberPost (PUT)
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const memberLogId = parseInt(id);
+    const memberPostId = parseInt(id);
 
-    if (isNaN(memberLogId) || memberLogId <= 0) {
+    if (isNaN(memberPostId) || memberPostId <= 0) {
       return Response.json(
-        { error: 'شناسه MemberLog معتبر نیست' },
+        { error: 'شناسه MemberPost معتبر نیست' },
         { status: 400 }
       );
     }
 
     const formData = await request.formData();
     
-    // بررسی وجود MemberLog
-    const existingMemberLog = await prisma.tblvMemberLog.findUnique({
-      where: { MemberLogID: memberLogId }
+    // بررسی وجود MemberPost
+    const existingMemberPost = await prisma.tblvMemberPost.findUnique({
+      where: { MemberPostID: memberPostId }
     });
 
-    if (!existingMemberLog) {
+    if (!existingMemberPost) {
       return Response.json(
-        { error: "لاگ کاربر مورد نظر یافت نشد" },
+        { error: "ارتباط کاربر و پست مورد نظر یافت نشد" },
         { status: 404 }
       );
     }
 
     // آماده‌سازی داده‌ها برای بروزرسانی
-    const updateData: Prisma.tblvMemberLogUpdateInput = {};
+    const updateData: Prisma.tblvMemberPostUpdateInput = {};
 
     // فیلدهای قابل بروزرسانی
-    const updatableFields = [
-      'LogOutDate', 'ISActive', 'Temp1', 'Temp2', 'Temp3', 'Temp4', 'Temp5'
-    ];
+    const updatableFields = ['ISActive', 'CreateDate'];
 
     for (const field of updatableFields) {
       const value = formData.get(field);
       if (value !== null && value !== undefined) {
         if (field === 'ISActive') {
           updateData[field] = parseInt(value.toString());
-        } else if (field === 'LogOutDate') {
-          const dateValue = new Date(value.toString());
-          if (!isNaN(dateValue.getTime())) {
-            updateData[field] = dateValue;
-          }
         } else {
           updateData[field] = value.toString().trim();
         }
       }
     }
 
-    // اگر MemberID یا LoginPostID ارسال شده، بررسی وجود آنها
+    // اگر MemberID یا PostID ارسال شده، بررسی تکراری بودن
     const newMemberId = formData.get('MemberID');
-    const newLoginPostId = formData.get('LoginPostID');
+    const newPostId = formData.get('PostID');
 
-    if (newMemberId) {
-      const memberIdValue = parseInt(newMemberId.toString());
-      
-      // بررسی وجود Member جدید
-      const memberExists = await prisma.tblvMember.findUnique({
-        where: { MemberID: memberIdValue }
-      });
+    if (newMemberId || newPostId) {
+      const checkMemberId = newMemberId ? parseInt(newMemberId.toString()) : existingMemberPost.MemberID;
+      const checkPostId = newPostId ? parseInt(newPostId.toString()) : existingMemberPost.PostID;
 
-      if (!memberExists) {
-        return Response.json(
-          { error: "کاربر مورد نظر یافت نشد" },
-          { status: 404 }
-        );
+      if (checkMemberId !== existingMemberPost.MemberID || checkPostId !== existingMemberPost.PostID) {
+        const duplicateMemberPost = await prisma.tblvMemberPost.findFirst({
+          where: { 
+            MemberID: checkMemberId,
+            PostID: checkPostId,
+            MemberPostID: { not: memberPostId }
+          }
+        });
+
+        if (duplicateMemberPost) {
+          return Response.json(
+            { error: "این ارتباط کاربر و پست قبلاً ثبت شده است" },
+            { status: 409 }
+          );
+        }
       }
 
-      updateData.MemberID = memberIdValue;
-      updateData.tblvMember = { connect: { MemberID: memberIdValue } };
-    }
+      // اضافه کردن MemberID و PostID به داده‌های بروزرسانی اگر ارسال شده‌اند
+      if (newMemberId) {
+        const memberIdValue = parseInt(newMemberId.toString());
+        
+        // بررسی وجود Member جدید
+        const memberExists = await prisma.tblvMember.findUnique({
+          where: { MemberID: memberIdValue }
+        });
 
-    if (newLoginPostId) {
-      const loginPostIdValue = parseInt(newLoginPostId.toString());
-      
-      // بررسی وجود Post جدید
-      const postExists = await prisma.tblvPost.findUnique({
-        where: { PostID: loginPostIdValue }
-      });
+        if (!memberExists) {
+          return Response.json(
+            { error: "کاربر مورد نظر یافت نشد" },
+            { status: 404 }
+          );
+        }
 
-      if (!postExists) {
-        return Response.json(
-          { error: "پست مورد نظر یافت نشد" },
-          { status: 404 }
-        );
+        updateData.MemberID = memberIdValue;
+        updateData.tblvMember = { connect: { MemberID: memberIdValue } };
       }
 
-      updateData.LoginPostID = loginPostIdValue;
-      updateData.tblvPost = { connect: { PostID: loginPostIdValue } };
-    }
+      if (newPostId) {
+        const postIdValue = parseInt(newPostId.toString());
+        
+        // بررسی وجود Post جدید
+        const postExists = await prisma.tblvPost.findUnique({
+          where: { PostID: postIdValue }
+        });
 
-    // اگر LoginDate ارسال شده
-    const newLoginDate = formData.get('LoginDate');
-    if (newLoginDate) {
-      const loginDateValue = new Date(newLoginDate.toString());
-      if (!isNaN(loginDateValue.getTime())) {
-        updateData.LoginDate = loginDateValue;
+        if (!postExists) {
+          return Response.json(
+            { error: "پست مورد نظر یافت نشد" },
+            { status: 404 }
+          );
+        }
+
+        updateData.PostID = postIdValue;
+        updateData.tblvPost = { connect: { PostID: postIdValue } };
       }
     }
 
-    // بروزرسانی MemberLog
-    const updatedMemberLog = await prisma.tblvMemberLog.update({
-      where: { MemberLogID: memberLogId },
+    // بروزرسانی MemberPost
+    const updatedMemberPost = await prisma.tblvMemberPost.update({
+      where: { MemberPostID: memberPostId },
       data: updateData,
       include: {
         tblvMember: {
@@ -411,8 +386,8 @@ export async function PUT(
     return Response.json(
       {
         success: true,
-        message: "لاگ کاربر با موفقیت بروزرسانی شد",
-        data: updatedMemberLog
+        message: "ارتباط کاربر و پست با موفقیت بروزرسانی شد",
+        data: updatedMemberPost
       },
       { status: 200 }
     );
