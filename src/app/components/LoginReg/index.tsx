@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import axios from "axios";
-import { createUser } from '../../actions/createUser'
+import { createUser } from '../../(action)/createUser'
 //import { createUserLog } from '../../(action)/createUserLog'
 import { useRouter  } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../select'
@@ -20,14 +20,15 @@ function LoginReg() {
   const [loading  , setLoading] = useState(false)
   const [message  , setMessage] = useState('')
 
+
+
   const handleSendOtp = async () => {
-     const formData = new FormData()
-     formData.append('UserName', UserName)
-     formData.append('Password', Password)
-     formData.append('IsActive' ,IsActive)
-     setLoading(true)
-     setMessage('')
-     try {
+    const formData = new FormData()
+    formData.append('phone', phone)
+     formData.append('catid', catid)
+    setLoading(true)
+    setMessage('')
+    try {
       const result = await createUser(formData)
       setUserID(result.userID)
       setMessage(result.message)
