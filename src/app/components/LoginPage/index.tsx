@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import WEB from "../../../../public/firspage0.jpeg";
-import { authenticateUser } from "../actions/auth";
+import { authenticateUser } from "../../actions/auth";
 
 export default function Login() {
   const [username, setUsername] = useState("");

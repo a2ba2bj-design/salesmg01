@@ -30,6 +30,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "src/app/components/LoginPage/index.jsx"  ],
+, "src/app/components/LoginPage/index.tsx"  ],
   "exclude": ["node_modules"]
 }
