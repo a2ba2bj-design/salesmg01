@@ -5,11 +5,12 @@ import { redirect } from 'next/navigation'
 const prisma = new PrismaClient()
 
 export async function authenticateUser(formData: FormData) {
-  const username = formData.get('username')?.toString()
-  const password = formData.get('password')?.toString()
-  const post = formData.get('post')?.toString()
+  const username1 = formData.get('UserName')?.toString()
+  const password1 = formData.get('Password')?.toString()
+  const postname1 = formData.get('NameFull')?.toString()
+  const postid1 = formData.get('PostID'?.toString())
 
-  if (!username || !password || !post) {
+  if (!username1 || !password1 ||!postid1) {
     return { 
       success: false, 
       message: 'لطفاً تمام فیلدها را پر کنید' 
@@ -17,12 +18,11 @@ export async function authenticateUser(formData: FormData) {
   }
 
   try {
-    // بررسی کاربر در tblvMember
     const user = await prisma.tblvMember.findFirst({
       where: {
-        UserName: username,
-        Password: password,
-        IsActive: 1 // فقط کاربران فعال
+        UserName: username1,
+        Password: password1, // بهتر است hash شود
+        IsActive: 1
       }
     })
 
@@ -33,11 +33,11 @@ export async function authenticateUser(formData: FormData) {
       }
     }
 
-    // بررسی پست در tblvPost
     const userPost = await prisma.tblvPost.findFirst({
       where: {
-        PostID: parseInt(post),
-        ISActive: 1 // فقط پست‌های فعال
+        PostID: postid1,
+        NameFull:postname1,
+        ISActive: 1
       }
     })
 
@@ -48,21 +48,23 @@ export async function authenticateUser(formData: FormData) {
       }
     }
 
-    // ذخیره اطلاعات کاربر در session (می‌توانید از auth.js استفاده کنید)
     const userSession = {
       memberID: user.MemberID,
       username: user.UserName,
       firstName: user.FirstName,
       lastName: user.LastName,
       postID: userPost.PostID,
-      postName: userPost.Name
+      postNamefull: userPost.NameFull
     }
 
-    // در اینجا می‌توانید session یا token ایجاد کنید
-    console.log('User authenticated:', userSession)
-
-    // هدایت به صفحه پیش‌فرض
-    redirect('/dashboard')
+    // در اینجا session باید واقعاً ذخیره شود
+    // await saveSession(userSession)
+    
+    return { 
+      success: true, 
+      message: 'ورود موفقیت‌آمیز بود',
+      user: userSession 
+    }
 
   } catch (error) {
     console.error('Authentication error:', error)

@@ -38,8 +38,8 @@ export default function Login() {
 
     try {
       const formData = new FormData();
-      formData.append('username', username);
-      formData.append('password', password);
+      formData.append('UserName', username);
+      formData.append('Password', password);
       formData.append('post', post);
 
       const result = await authenticateUser(formData);
