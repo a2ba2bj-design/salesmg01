@@ -1,4 +1,5 @@
 'use client'
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -6,9 +7,9 @@ import WEB from "../../../../public/firspage0.jpeg";
 import { authenticateUser } from "../../actions/auth";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [post, setPost] = useState("");
+  const [UserName1, setUserName1] = useState("");
+  const [Password1, setPassword1] = useState("");
+  const [NameFull1, setNameFull1] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ export default function Login() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch('/api/posts');
+        const response = await fetch('/api/tblvPost');
         const data = await response.json();
         setPosts(data);
       } catch (error) {
@@ -38,9 +39,9 @@ export default function Login() {
 
     try {
       const formData = new FormData();
-      formData.append('UserName', username);
-      formData.append('Password', password);
-      formData.append('post', post);
+      formData.append('UserName', UserName1);
+      formData.append('Password', Password1);
+      formData.append('NameFull', NameFull1);
 
       const result = await authenticateUser(formData);
       
@@ -95,8 +96,8 @@ export default function Login() {
               <div className="relative">
                 <input
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={UserName1}
+                  onChange={(e) => setUserName1(e.target.value)}
                   className="w-full px-4 py-3 bg-blue-50 border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 text-right text-gray-800"
                   placeholder="نام کاربری خود را وارد کنید"
                   required
@@ -118,8 +119,8 @@ export default function Login() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={Password1}
+                  onChange={(e) => setPassword1(e.target.value)}
                   className="w-full px-4 py-3 bg-white border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 text-right text-gray-800 pr-12"
                   placeholder="رمز عبور خود را وارد کنید"
                   required
@@ -142,8 +143,8 @@ export default function Login() {
               </label>
               <div className="relative">
                 <select
-                  value={post}
-                  onChange={(e) => setPost(e.target.value)}
+                  value={NameFull1}
+                  onChange={(e) => setNameFull1(e.target.value)}
                   className="w-full px-4 py-3 bg-white border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 text-right text-gray-800 appearance-none cursor-pointer"
                   required
                   disabled={loading}
