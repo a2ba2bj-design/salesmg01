@@ -1,5 +1,5 @@
 'use server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '../../../src/generated/prisma/client'
 import { redirect } from 'next/navigation'
 
 const prisma = new PrismaClient()
@@ -35,7 +35,7 @@ export async function authenticateUser(formData: FormData) {
 
     const userPost = await prisma.tblvPost.findFirst({
       where: {
-        PostID: postid1,
+        PostID:(parseInt(postid1.toString())) ,
         NameFull:postname1,
         ISActive: 1
       }

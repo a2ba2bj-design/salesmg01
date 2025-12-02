@@ -41,7 +41,7 @@ export default function Login() {
       const formData = new FormData();
       formData.append('UserName', UserName1);
       formData.append('Password', Password1);
-      formData.append('NameFull', NameFull1);
+      formData.append('PostID', PostID1);
 
       const result = await authenticateUser(formData);
       
