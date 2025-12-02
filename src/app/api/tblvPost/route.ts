@@ -1,10 +1,9 @@
 import { NextRequest } from "next/server";
-import { PrismaClient, Prisma } from '@prisma/client';
-
+import { PrismaClient, Prisma } from '../../../../src/generated/prisma/client'
 const prisma = new PrismaClient();
 
 // تابع کمکی برای مدیریت خطا
-function handlePrismaError(error: unknown): { message: string; status: number } {
+function handlePrismaError(error: Prisma.PrismaClientKnownRequestError): { message: string; status: number } {
   console.error('Database error:', error);
   
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -84,20 +83,20 @@ export async function GET(request: NextRequest) {
     let whereCondition: Prisma.tblvPostWhereInput = {};
 
     // فیلتر بر اساس نام
-    if (name) {
-      whereCondition.Name = {
-        contains: name,
-        mode: 'insensitive' as Prisma.QueryMode
-      };
-    }
+    //if (name) {
+    //  whereCondition.Name = {
+      //  contains: name,
+     //   mode: 'insensitive' as Prisma.QueryMode
+   //   };
+  //  }
 
     // فیلتر بر اساس نام کامل
-    if (nameFull) {
-      whereCondition.NameFull = {
-        contains: nameFull,
-        mode: 'insensitive' as Prisma.QueryMode
-      };
-    }
+   // if (nameFull) {
+   //   whereCondition.NameFull = {
+      //  contains: nameFull,
+     //   mode: 'insensitive' as Prisma.QueryMode
+    //  };
+   // }
 
     // فیلتر بر اساس وضعیت فعال بودن
     if (isActive !== null && isActive !== undefined) {
@@ -362,7 +361,7 @@ export async function PUT(
                 );
               }
             }
-            updateData[field] = numValue;
+          //  updateData[field] = numValue;
           }
         } else if (field === 'Name') {
           const nameValue = value.toString().trim();
@@ -379,7 +378,7 @@ export async function PUT(
             updateData[field] = nameFullValue;
           }
         } else {
-          updateData[field] = value.toString().trim();
+         // updateData[field] = value.toString().trim();
         }
       }
     }

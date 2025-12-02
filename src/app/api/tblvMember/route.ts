@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '../../../../src/generated/prisma/client'
 import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 // تابع کمکی برای مدیریت خطا
-function handlePrismaError(error: unknown): { message: string; status: number } {
+function handlePrismaError(error: Prisma.PrismaClientKnownRequestError): { message: string; status: number } {
   console.error('Database error:', error);
   // استفاده از utility های Prisma
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    switch (error.code) {
+    switch (error.code.toString()) {
       case 'P2002':
         return { message: 'رکورد تکراری وجود دارد', status: 409 };
       case 'P2025':
@@ -82,26 +82,7 @@ export async function GET(request: NextRequest) {
 
     let whereCondition: any = {};
 
-    if (UserName1) {
-      whereCondition.UserName = {
-        contains: UserName1.toString(),
-        mode: 'insensitive' as Prisma.QueryMode
-      };
-    }
-
-    if (FirstName) {
-      whereCondition.FirstName = {
-        contains: FirstName.toString(),
-        mode: 'insensitive' as Prisma.QueryMode
-      };
-    }
-
-    if (LastName) {
-      whereCondition.LastName = {
-        contains: LastName.toString(),
-        mode: 'insensitive' as Prisma.QueryMode
-      };
-    }
+  
 
     if (IsActive !== null && IsActive !== undefined) {
       whereCondition.IsActive = parseInt(IsActive);
